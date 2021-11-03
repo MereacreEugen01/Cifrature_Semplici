@@ -69,7 +69,7 @@ public class Inbox extends JFrame {
 		c.add(center,BorderLayout.CENTER);
 		c.add(ButtonPanel,BorderLayout.SOUTH);
 
-
+		this.setResizable(false);
 		this.setBounds(100,100,630,200); //Dimensione
 		this.setVisible(true);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -94,11 +94,18 @@ public class Inbox extends JFrame {
 		return tendina;
 	}
 
-	public void decifraCesare(String messaggio, int chiave) {
-
+	public byte[] decifraCesare(byte[] s , int chiave) {
+	           byte[] c = new byte[s.length];
+	           if(chiave>255) chiave -= 255;
+	           byte k = (byte)(chiave);
+	           for (int i = 0; i < s.length;i++) {
+	                   byte n = (byte) (s[i] - k);
+	                   c[i] = n;
+	           }
+	           return c;
 	}
 
-	public void decifraVigenere(String messaggio, int chiave) {
+	public void decifraVigenere(byte[] s , int chiave) {
 
 	}
 	
@@ -167,13 +174,13 @@ public class Inbox extends JFrame {
 		int chiave;
 		if(bottone1==listener.getSource() && scelta1.isSelected() && eUnNumero(casella.getText())) {
 			chiave = Integer.parseInt(casella.getText());
-			decifraCesare(listaMessaggi.get(), chiave);
+			decifraCesare(listaMessaggi.get(0).getBytes(), chiave);
 		}else
 			JOptionPane.showMessageDialog(null,"La chiave deve essere un numero", "errore" , JOptionPane.WARNING_MESSAGE);
 
 		if(bottone1==listener.getSource() && scelta2.isSelected() && eUnNumero(casella.getText())) {
 			chiave = Integer.parseInt(casella.getText());
-			decifraVigenere(listaMessaggi.get(), chiave);
+			decifraVigenere(listaMessaggi.get(0).getBytes(), chiave);
 		}else 
 			JOptionPane.showMessageDialog(null,"La chiave deve essere un numero", "errore" , JOptionPane.WARNING_MESSAGE);
 
