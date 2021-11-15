@@ -1,10 +1,13 @@
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -17,6 +20,7 @@ public class Sender extends JFrame implements ActionListener
 	private Dimension dim = Toolkit.getDefaultToolkit().getScreenSize(); //variabile di supporto per posizionare la finestra al centro dello schermo
 	private int x =  (dim.width-larghezza)/2, y = (dim.height-altezza)/2;//coordinate x e y per posizionare la finestra in maniera dinamica
 	private JTextField codiceAgente;
+	private JLabel titolo;
 
 	
 	public Sender()
@@ -27,13 +31,12 @@ public class Sender extends JFrame implements ActionListener
 		pannelloCentrale = new JPanel();
 		pannelloCentrale.setLayout(null);
 		
-		codiceAgente = new JTextField();
-		codiceAgente.setBounds(20,20, 40, 20 );
-		codiceAgente.setVisible(true);
-		pannelloCentrale.add(codiceAgente);
+		titolo = new JLabel("Secret sender");
+		titolo.setAlignmentX(CENTER_ALIGNMENT);
+		//new BowLayout
 		
-		
-		pannelloPrincipale.add(pannelloCentrale);
+		pannelloPrincipale.add(titolo, BorderLayout.NORTH);
+		pannelloPrincipale.add(pannelloCentrale, BorderLayout.CENTER);
 		
 			
 		setVisible(true);
