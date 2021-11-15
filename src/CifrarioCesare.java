@@ -1,4 +1,4 @@
-class CifrarioCesare {
+public class CifrarioCesare {
 
        public byte[] cifraCesare(byte[] s , int chiave) {
     	       byte[] c = new byte[s.length];
@@ -36,4 +36,5 @@ class CifrarioCesare {
            }
            return c;
    }
+
 }

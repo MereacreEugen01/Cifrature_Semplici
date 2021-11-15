@@ -23,5 +23,6 @@ public class Cifrario {
                System.out.print("\nStringa cecifrata : " );
                for(byte st : d)
             	   System.out.print((char)st);
-               t.close();      }
+               t.close();     
+       }
 }
