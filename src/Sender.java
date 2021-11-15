@@ -258,6 +258,15 @@ public class Sender extends JFrame implements ActionListener
 		if(invia == e.getSource())
 		{
 			//manca da prendere il messaggio che l'utente ha scritto, codificarlo e inviarlo
+			char[] key = messaggio.getText().toCharArray();
+			byte [] messaggioDaCifrare = new byte[key.length];
+            for(int i = 0; i < key.length; i++)
+         	   messaggioDaCifrare[i] = (byte)key[i];
+   
+            CifrarioCesare cifratoreCesare = new CifrarioCesare(messaggioDaCifrare, Integer.parseInt(textField_chiaveCesare.getText()));
+			//cifratoreCesare.cripta(messaggioDaCifrare, Integer.parseInt(textField_chiaveCesare.getText()));
+            String pippo = new String(cifratoreCesare.cripta(messaggioDaCifrare, Integer.parseInt(textField_chiaveCesare.getText())));
+		System.out.println(		pippo);
 		}
 		if(esci== e.getSource() )
 		{

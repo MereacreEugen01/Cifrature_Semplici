@@ -2,6 +2,7 @@ import java.util.*;
 public class Cifrario {
 
        public static void main(String[] args) {
+    	   /*
                CifrarioCesare cifra = new CifrarioCesare();
                Scanner t = new Scanner(System.in);
                String s;
@@ -19,5 +20,6 @@ public class Cifrario {
                System.out.print("\nStringa decriptata : " );
                for(byte st : d)
             	   System.out.print((char)st);
+            	   */
        }
 }
