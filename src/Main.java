@@ -4,8 +4,8 @@ public class Main {
 	{
 		//Creo la finestra principale che si autogestisce
 		//MainWindow finestra = new MainWindow(); 
-		Sender finestra = new Sender();
-		//Inbox finestra = new Inbox();
+		//Sender finestra = new Sender();
+		Inbox finestra = new Inbox();
 	}
 }
 

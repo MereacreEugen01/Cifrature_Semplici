@@ -1,14 +1,59 @@
 import javax.swing.*;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.ArrayList;
-public class Inbox extends JFrame {
+public class Inbox extends JFrame implements ActionListener{
 
-	private JTextField casella = new JTextField();
+	private JTextPane casellaCesare = new JTextPane(
+			//La chiave di cesare non deve contenere nessun carattere quindi con appena viene inserita una lettere verrà subito eliminata
+			new DefaultStyledDocument() 
+			{
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void insertString(int offs, String str, AttributeSet a) 
+				{
+					try 
+					{
+						str = str.replaceAll("[a-z]", "");
+						str = str.replaceAll("[A-Z]", "");
+						super.insertString(offs, str, a);
+					} catch (BadLocationException e) 
+					{
+						e.printStackTrace();
+					}
+				}
+			}
+			);
+
+
+	private JTextPane casellaVigenere = new JTextPane(
+			new DefaultStyledDocument() {
+				private static final long serialVersionUID = 1L;
+				//la chiave di vigenere può contenere sia lettere che numeri però non deve superare la lunghezza di 5 caratteri
+				@Override
+				public void insertString(int offs, String str, AttributeSet a) 
+				{
+					if((getLength() + str.length()) <=5)
+						try 
+					{ 
+							super.insertString(offs, str, a);
+					} catch (BadLocationException e) 
+					{
+						e.printStackTrace();
+					}
+				}
+			}
+			);
+
 
 	private JButton bottone1= new JButton("Decifra");
 	JPanel ButtonPanel = new JPanel();
@@ -31,16 +76,22 @@ public class Inbox extends JFrame {
 	JPanel nord = new JPanel();
 
 	JComboBox tendina = new JComboBox();
-	
+
 	private DatagramSocket socket;
 	private DatagramPacket p;
 
 	private ArrayList<String> listaMessaggi = new ArrayList();
+
+
 	public Inbox() {
 		super("Inbox"); //Creazione finestra
 
 		gruppoScelta.add(scelta1);
 		gruppoScelta.add(scelta2);
+
+
+		casellaCesare.setVisible(true);
+		casellaVigenere.setVisible(false);
 
 		tendina = aggiunge();
 
@@ -53,12 +104,10 @@ public class Inbox extends JFrame {
 		center.add(etichetta4);
 		center.add(tendina);
 		center.add(scelta1);
-		center.add(casella);
-		center.add(vuoto); 
+		center.add(casellaCesare);
+		center.add(vuoto);
 		center.add(scelta2);
-
-		casella.setPreferredSize(new Dimension(20,20));
-
+		center.add(casellaVigenere);
 
 		ButtonPanel.setLayout(new FlowLayout());
 		ButtonPanel.add(bottone1);
@@ -68,6 +117,10 @@ public class Inbox extends JFrame {
 		c.add(nord,BorderLayout.NORTH);
 		c.add(center,BorderLayout.CENTER);
 		c.add(ButtonPanel,BorderLayout.SOUTH);
+
+		scelta1.addActionListener(this);
+		scelta2.addActionListener(this);
+		bottone1.addActionListener(this);
 
 		this.setResizable(false);
 		this.setBounds(100,100,630,200); //Dimensione
@@ -95,20 +148,24 @@ public class Inbox extends JFrame {
 	}
 
 	public byte[] decifraCesare(byte[] s , int chiave) {
-	           byte[] c = new byte[s.length];
-	           if(chiave>255) chiave -= 255;
-	           byte k = (byte)(chiave);
-	           for (int i = 0; i < s.length;i++) {
-	                   byte n = (byte) (s[i] - k);
-	                   c[i] = n;
-	           }
-	           return c;
+		byte[] c = new byte[s.length];
+		if(chiave>255) chiave -= 255;
+		byte k = (byte)(chiave);
+		for (int i = 0; i < s.length;i++) {
+			byte n = (byte) (s[i] - k);
+			c[i] = n;
+		}
+		return c;
 	}
 
-	public void decifraVigenere(byte[] s , int chiave) {
-
+	public byte[] decifraVigenere(byte[] s , byte[] chiave) {
+		byte[] c = new byte[s.length];
+		for (int i = 0; i < s.length;i++) {
+			c[i] = (byte)(s[i] - chiave[i%chiave.length]);
+		}
+		return c;
 	}
-	
+
 	public void ricezioneMessaggi(int port) 
 	{ 
 		try 
@@ -135,7 +192,7 @@ public class Inbox extends JFrame {
 								{
 									//Ricezione messaggio
 									socket.receive(p);
-									
+
 								} 
 								catch (IOException e) 
 								{
@@ -153,37 +210,50 @@ public class Inbox extends JFrame {
 								}
 							}
 						}
-							
-						};
-						t.start();
-					}
-					
-				};
-				t.start();
-				
-			} 
-			catch (SocketException e) 
-			{
-				JOptionPane.showMessageDialog(null, "Non è stato possibile aprire la socket", "Attenzione", JOptionPane.WARNING_MESSAGE);
-			}
-			
+
+					};
+					t.start();
+				}
+
+			};
+			t.start();
+
+		} 
+		catch (SocketException e) 
+		{
+			JOptionPane.showMessageDialog(null, "Non è stato possibile aprire la socket", "Attenzione", JOptionPane.WARNING_MESSAGE);
 		}
-				
-								
+
+	}
+
+
 	public void actionPerformed(ActionEvent listener) {	
 		int chiave;
-		if(bottone1==listener.getSource() && scelta1.isSelected() && eUnNumero(casella.getText())) {
-			chiave = Integer.parseInt(casella.getText());
-			decifraCesare(listaMessaggi.get(0).getBytes(), chiave);
-		}else
-			JOptionPane.showMessageDialog(null,"La chiave deve essere un numero", "errore" , JOptionPane.WARNING_MESSAGE);
-
-		if(bottone1==listener.getSource() && scelta2.isSelected() && eUnNumero(casella.getText())) {
-			chiave = Integer.parseInt(casella.getText());
-			decifraVigenere(listaMessaggi.get(0).getBytes(), chiave);
-		}else 
-			JOptionPane.showMessageDialog(null,"La chiave deve essere un numero", "errore" , JOptionPane.WARNING_MESSAGE);
 
 
+		if(listener.getSource()==scelta1)
+		{
+			casellaCesare.setVisible(true);
+			casellaVigenere.setVisible(false);
+		} else if (listener.getSource()==scelta2)
+		{
+			casellaCesare.setVisible(false);
+			casellaVigenere.setVisible(true);
+		}
+
+		else if(bottone1==listener.getSource()) {
+			if(scelta1.isSelected()) {
+				chiave = Integer.parseInt(casellaCesare.getText());
+				decifraCesare(listaMessaggi.get(tendina.getSelectedIndex()).getBytes(), chiave);
+			}else if(scelta2.isSelected()) {
+				char[] chiaveV = casellaVigenere.getText().toCharArray();
+				if(chiaveV.length<5) 			
+					JOptionPane.showMessageDialog(null,"La chiave deve essere una parola di 5 lettere", "errore" , JOptionPane.WARNING_MESSAGE);
+				else {
+					byte [] key = new byte[chiaveV.length];
+					for(	int i = 0 ; i < key.length;i++)
+						key[i] = (byte)chiaveV[i];
+					decifraVigenere(listaMessaggi.get(tendina.getSelectedIndex()).getBytes(), key);
+				}}}
 	}
 }
