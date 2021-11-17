@@ -27,9 +27,6 @@ public class Sender extends JFrame implements ActionListener
 	private int altezza= 400, larghezza= 800;//dimensioni della finestra
 	private Dimension dim = Toolkit.getDefaultToolkit().getScreenSize(); //variabile di supporto per posizionare la finestra al centro dello schermo
 	private int x =  (dim.width-larghezza)/2, y = (dim.height-altezza)/2;//coordinate x e y per posizionare la finestra in maniera dinamica
-	private JTextField codiceAgente;
-	private JLabel titolo;
-
 	private JTextPane textField_chiaveCesare, textField_chiaveVigenere, codiceAgente, porta, ip;
 	private JLabel titolo, sottoTitolo; 
 	private JTextArea  messaggio;
