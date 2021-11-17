@@ -1,17 +1,23 @@
-<<<<<<< HEAD
+
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-=======
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -27,8 +33,6 @@ public class Sender extends JFrame implements ActionListener
 	private int altezza= 400, larghezza= 800;//dimensioni della finestra
 	private Dimension dim = Toolkit.getDefaultToolkit().getScreenSize(); //variabile di supporto per posizionare la finestra al centro dello schermo
 	private int x =  (dim.width-larghezza)/2, y = (dim.height-altezza)/2;//coordinate x e y per posizionare la finestra in maniera dinamica
-	private JTextField codiceAgente;
-	private JLabel titolo;
 
 	private JTextPane textField_chiaveCesare, textField_chiaveVigenere, codiceAgente, porta, ip;
 	private JLabel titolo, sottoTitolo; 
@@ -36,11 +40,25 @@ public class Sender extends JFrame implements ActionListener
 	private JButton invia, esci;
 	private JRadioButton cifrCesare, cifrVigenere;
 
+	//Variabili per inviare
+	private DatagramSocket socketSender;
+	private DatagramPacket datagrampacket;
 
+	//Variabili per attendere una risposta
+	private byte stringaDiByte[] = new byte[64];
+	private DatagramPacket pacchettoRicevuto;
+	private String messaggioRicevuto = "";
+
+	private boolean tuttOk = true;
+
+	private Thread thread = new Thread();
 
 	public Sender()
 	{
 		super("Secret Sender");
+
+		avvioThreadDiLettura();//Attivazione thread con socket di ascolto
+
 		setBounds(x, y, larghezza, altezza);
 		pannelloPrincipale = (JPanel)getContentPane();
 		pannelloCentrale = new JPanel();
@@ -105,12 +123,12 @@ public class Sender extends JFrame implements ActionListener
 		JPanel sottoPannello4 = new JPanel();
 		sottoPannello4.setLayout(flow);
 		sottoPannello4.add(scrollBar);	
-		
+
 
 		titolo = new JLabel("Secret sender");
 		titolo.setAlignmentX(CENTER_ALIGNMENT);
 		//new BowLayout
-		
+
 		pannelloPrincipale.add(titolo, BorderLayout.NORTH);
 		pannelloPrincipale.add(pannelloCentrale, BorderLayout.CENTER);
 
@@ -118,7 +136,7 @@ public class Sender extends JFrame implements ActionListener
 		pannellOvest.add(sottoPannello2);
 		pannellOvest.add(sottoPannello3);
 		pannellOvest.add(sottoPannello4);
-		
+
 		JPanel pannelloSinistra = new JPanel();
 		pannelloSinistra.add(pannellOvest);
 		//sottopannello con la scelta del metodo di cifratura, la chiave, l'ip e la porta di destinazione
@@ -210,7 +228,7 @@ public class Sender extends JFrame implements ActionListener
 					}
 				}
 				);
-		
+
 		ip.setPreferredSize(new Dimension(100,20));
 		//Controllo sulla porta affinchè non ci siano lettere e non sia un numero troppo grosso 
 		porta = new JTextPane(
@@ -235,7 +253,7 @@ public class Sender extends JFrame implements ActionListener
 				}
 				);
 
-		
+
 		porta.setPreferredSize(new Dimension(100,20));
 		pannellino3.setLayout(new GridLayout(2,1));
 		JPanel pannellinoSu = new JPanel();
@@ -287,18 +305,84 @@ public class Sender extends JFrame implements ActionListener
 			//manca da prendere il messaggio che l'utente ha scritto, codificarlo e inviarlo
 			char[] key = messaggio.getText().toCharArray();
 			byte [] messaggioDaCifrare = new byte[key.length];
-            for(int i = 0; i < key.length; i++)
-         	   messaggioDaCifrare[i] = (byte)key[i];
-   
-            CifrarioCesare cifratoreCesare = new CifrarioCesare(messaggioDaCifrare, Integer.parseInt(textField_chiaveCesare.getText()));
+			for(int i = 0; i < key.length; i++)
+				messaggioDaCifrare[i] = (byte)key[i];
+
+			//CifrarioCesare cifratoreCesare = new CifrarioCesare(messaggioDaCifrare, Integer.parseInt(textField_chiaveCesare.getText()));
 			//cifratoreCesare.cripta(messaggioDaCifrare, Integer.parseInt(textField_chiaveCesare.getText()));
-            String pippo = new String(cifratoreCesare.cripta(messaggioDaCifrare, Integer.parseInt(textField_chiaveCesare.getText())));
-		System.out.println(		pippo);
+			//  String pippo = new String(cifratoreCesare.cripta(messaggioDaCifrare, Integer.parseInt(textField_chiaveCesare.getText())));
+			//System.out.println(		pippo);
+			byte[] messaggioCifrato = null;
+			if (cifrCesare.isSelected()) messaggioCifrato = cifraCesare(messaggioDaCifrare, Integer.parseInt(textField_chiaveCesare.getText()));
+			else if (cifrVigenere.isSelected()) messaggioCifrato = cifraVigenere(messaggioDaCifrare, textField_chiaveVigenere.getText().getBytes());
+
+
+			try 
+			{
+				datagrampacket = new DatagramPacket(messaggioCifrato, messaggioCifrato.length, InetAddress.getByName(ip.getText()), Integer.parseInt(porta.getText()));
+				socketSender.send(datagrampacket);
+			}
+			catch (IOException evt) 
+			{}
 		}
 		if(esci== e.getSource() )
 		{
-			System.exit(0);
+			endingTheSocket();
 		}
+	}
+
+	public void avvioThreadDiLettura() {
+		thread.run();
+	}
+
+	private void run() {
+		do{
+			try {
+				for(int k = 0; k < stringaDiByte.length; k++)
+				{
+					stringaDiByte[k] = 0;
+				}
+				pacchettoRicevuto  = new DatagramPacket(stringaDiByte,stringaDiByte.length);
+				socketSender.receive(pacchettoRicevuto);
+				messaggioRicevuto = new String(pacchettoRicevuto.getData(), 0, pacchettoRicevuto.getData().length).trim();
+
+				if(messaggioRicevuto.trim().contains("Pronto!")) {}
+				else{
+					socketSender.close();
+					System.exit(0);
+				}
+			} catch (IOException e) {}
+		}while(tuttOk);
+	}
+
+	private void endingTheSocket() {
+		try {
+			messaggioRicevuto = "_";
+			pacchettoRicevuto = new DatagramPacket(messaggioRicevuto.getBytes(),messaggioRicevuto.getBytes().length, InetAddress.getByName("localhost"), socketSender.getLocalPort());
+			socketSender.send(pacchettoRicevuto);
+		}catch(IOException event) {
+
+		}
+	}
+
+	public byte[] cifraCesare(byte[] s , int chiave) {
+		byte[] c = new byte[s.length];
+		if(chiave>255) chiave %= 255;
+		byte k = (byte)chiave;
+		for (int i = 0; i < s.length; i++) {
+			byte n = (byte) (s[i] + k);
+			c[i] = n;
+		}
+		return c;
+	}
+
+	public byte[] cifraVigenere(byte[] s , byte[] chiave) 
+	{
+		byte[] c = new byte[s.length];
+		for (int i = 0; i < s.length; i++) {
+			c[i] = (byte)((byte)s[i] + (byte)chiave[i%chiave.length]);
+		}
+		return c;
 	}
 
 }

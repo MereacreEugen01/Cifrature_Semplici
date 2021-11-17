@@ -146,7 +146,7 @@ public class Inbox extends JFrame {
 								//Controllo se il messaggio arrivato è uguale a "pronto" , se si cambio il messaggio in "pronto!"
 								if(msg.trim().equals("pronto")) 
 								{
-									msg = "pronto!";
+									msg += "!";
 								}else {
 									System.out.println(msg); //Stampa del messaggio appena arrivato
 									listaMessaggi.add(msg);  //Aggiungo il messaggio arrivato alla lista dei messaggi
