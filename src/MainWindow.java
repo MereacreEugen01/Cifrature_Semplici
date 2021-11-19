@@ -10,6 +10,8 @@ public class MainWindow extends JFrame implements ActionListener
 {
 	private static final long serialVersionUID = 1L;
 
+	public static int numeroPorta;
+	String porta;
 	private JPanel pannelloNord, pannelloCentro, pannelloPrincipale, pannelloSud, pannelloCentroSu, pannelloCentroGiu;//sottopannelli
 	private JLabel titolo, messaggioSu, messaggioGiu;//Messaggi a schermo per l'utente 
 	private JButton procedi, annulla;//bottoni per procedere e per per chiudere la scherda
@@ -20,7 +22,7 @@ public class MainWindow extends JFrame implements ActionListener
 	
 	public MainWindow()
 	{
-		super("Grid Computing");// utilizzo la classe padre per definire il nome 
+		super("Cifrature semplici");// utilizzo la classe padre per definire il nome 
 		//settiamo la posizione in modo dinamico e le dimensioni della scheda
 		setBounds(x, y, larghezza, altezza);
 		pannelloPrincipale = (JPanel)getContentPane();
@@ -30,8 +32,8 @@ public class MainWindow extends JFrame implements ActionListener
 		pannelloNord.setLayout(new FlowLayout());
 		pannelloNord.add(titolo);
 		//definisco le barie scelte e le aggiungo ad un buttonGroup
-		opzioneUno = new JCheckBox("Grid Master  ");
-		opzioneDue = new JCheckBox("Grid Node      "); 
+		opzioneUno = new JCheckBox("Secret Sender ");
+		opzioneDue = new JCheckBox("Secret Inbox  "); 
 		ButtonGroup gruppoScelta = new ButtonGroup();
 		gruppoScelta.add(opzioneUno);
 		gruppoScelta.add(opzioneDue);
@@ -43,10 +45,10 @@ public class MainWindow extends JFrame implements ActionListener
 		pannelloSud.add(procedi);
 		pannelloSud.add(annulla);
 		//similente a prima c'è bisogno che gli elementi a schermo siano in colonna quindi uso un GridLayout
-		messaggioSu = new JLabel("Il Grid Master è il cuore del sistema ed avrà il compito di organizzare il lavoro dei Grid Node.");
+		messaggioSu = new JLabel("Il secret sender è quello che cifra e invia il messaggio");
 		messaggioSu.setHorizontalAlignment(JLabel.LEFT);
 		messaggioSu.setForeground(Color.RED);
-		messaggioGiu = new JLabel("Il Grid Node è il programma che svolge effettivamente il lavoro.");
+		messaggioGiu = new JLabel("Il secret inbox è quello che riceve e decifra il messaggio");
 		messaggioGiu.setHorizontalAlignment(JLabel.LEFT);
 		messaggioGiu.setForeground(Color.RED);
 		pannelloCentro = new JPanel();
@@ -81,18 +83,22 @@ public class MainWindow extends JFrame implements ActionListener
 		{
 			JOptionPane.showMessageDialog(null,"Scegliere almeno un opzione", "Attenzione", JOptionPane.WARNING_MESSAGE);
 		}
-		//Se viene selezionata la scelta 1 (GridMaster) allora apparirà un messaggio di conferma e si apparirà la finestra del GridMaster 
+		//Se viene selezionata la scelta 1 (Secret Inbox) allora apparirà un messaggio di conferma e si apparirà la finestra del Secret Sender
 		if(procedi==listener.getSource() && opzioneUno.isSelected())
 		{
-			JOptionPane.showMessageDialog(null,"Hai selezionato che questa macchina è il Grid Master", "Avviso" , JOptionPane.INFORMATION_MESSAGE);
-			Sender finestraMaster = new Sender();
+			JOptionPane.showMessageDialog(null,"Hai selezionato che questa macchina è il Secret Sender", "Avviso" , JOptionPane.INFORMATION_MESSAGE);
+			Sender finestraSender = new Sender();
 			this.dispose();
 		}
-		//Se viene selezionata la scelta 2 (GridNode) allora apparirà un messaggio di conferma e si apparirà la finestra del GridNode 
+		//Se viene selezionata la scelta 2 (Secret Inbox) allora apparirà un messaggio di conferma e si apparirà la finestra del Secret Inbox
 		if(procedi==listener.getSource() && opzioneDue.isSelected())
 		{
-			JOptionPane.showMessageDialog(null,"Hai selezionato che questa macchina è un Grid Node", "Avviso" , JOptionPane.INFORMATION_MESSAGE);
-			Inbox finestra = new Inbox();
+			do {
+				porta = JOptionPane.showInputDialog(null,"Inserire il numero della porta", "Numero Porta" , JOptionPane.QUESTION_MESSAGE);
+				System.out.println(porta);
+			}while(!eUnNumero(porta));
+			numeroPorta=Integer.parseInt(porta);
+			Inbox finestraInbox = new Inbox();
 			this.dispose();
 		}
 		//se viene premuto il tasto annulla si chiude il programma
@@ -102,5 +108,25 @@ public class MainWindow extends JFrame implements ActionListener
 		}
 	}
 
+	public static int getNumeroPorta() {
+		return numeroPorta;
+	}
+
+	public void setNumeroPorta(int numeroPorta) {
+		this.numeroPorta = numeroPorta;
+	}
+
+	private static boolean eUnNumero(String stringa) 
+	{ 
+		try 
+		{  
+			Integer.parseInt(stringa);  
+			return true;
+		} 
+		catch(NumberFormatException e)
+		{  
+			return false;  
+		}  
+	}
 
 }

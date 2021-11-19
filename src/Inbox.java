@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class Inbox extends JFrame implements ActionListener{
 
 	private JTextPane casellaCesare = new JTextPane(
-			//La chiave di cesare non deve contenere nessun carattere quindi con appena viene inserita una lettere verrà subito eliminata
+			//La chiave di cesare non deve contenere nessun carattere quindi non appena viene inserita una lettere verrà subito eliminata
 			new DefaultStyledDocument() 
 			{
 				private static final long serialVersionUID = 1L;
@@ -38,7 +38,7 @@ public class Inbox extends JFrame implements ActionListener{
 	private JTextPane casellaVigenere = new JTextPane(
 			new DefaultStyledDocument() {
 				private static final long serialVersionUID = 1L;
-				//la chiave di vigenere può contenere sia lettere che numeri però non deve superare la lunghezza di 5 caratteri
+				//la chiave di vigenere può contenere solo lettere e non deve superare la lunghezza di 5 caratteri
 				@Override
 				public void insertString(int offs, String str, AttributeSet a) 
 				{
@@ -73,7 +73,10 @@ public class Inbox extends JFrame implements ActionListener{
 	JLabel vuoto= new JLabel();
 
 	JLabel etichetta1= new JLabel("Secret Inbox");
+	
 	JPanel nord = new JPanel();
+	
+	JLabel etichetta5 = new JLabel("Porta: "+MainWindow.getNumeroPorta());
 
 	JComboBox tendina = new JComboBox();
 
@@ -82,6 +85,7 @@ public class Inbox extends JFrame implements ActionListener{
 
 	private ArrayList<String> listaMessaggi = new ArrayList();
 
+	private Thread thread = new Thread();
 
 	public Inbox() {
 		super("Inbox"); //Creazione finestra
@@ -93,8 +97,6 @@ public class Inbox extends JFrame implements ActionListener{
 		casellaCesare.setVisible(true);
 		casellaVigenere.setVisible(false);
 
-		tendina = aggiunge();
-
 		nord.setLayout(new FlowLayout());
 		nord.add(etichetta1);
 
@@ -105,7 +107,7 @@ public class Inbox extends JFrame implements ActionListener{
 		center.add(tendina);
 		center.add(scelta1);
 		center.add(casellaCesare);
-		center.add(vuoto);
+		center.add(etichetta5);
 		center.add(scelta2);
 		center.add(casellaVigenere);
 
@@ -122,29 +124,18 @@ public class Inbox extends JFrame implements ActionListener{
 		scelta2.addActionListener(this);
 		bottone1.addActionListener(this);
 
+		
 		this.setResizable(false);
-		this.setBounds(100,100,630,200); //Dimensione
+		this.setBounds(100,100,630,230); //Dimensione
 		this.setVisible(true);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		ricezioneMessaggi(MainWindow.getNumeroPorta());
 	}
 
-	private static boolean eUnNumero(String stringa) 
-	{ 
-		try 
-		{  
-			Integer.parseInt(stringa);  
-			return true;
-		} 
-		catch(NumberFormatException e)
-		{  
-			return false;  
-		}  
-	}
-
-	public JComboBox aggiunge() {
+	public void aggiunge() {
+		tendina.removeAllItems();
 		for (int i =0; i<listaMessaggi.size(); i++)
 			tendina.addItem (listaMessaggi.get(i));
-		return tendina;
 	}
 
 	public byte[] decifraCesare(byte[] s , int chiave) {
@@ -186,7 +177,7 @@ public class Inbox extends JFrame implements ActionListener{
 							boolean corretto = true;
 							while(corretto) 
 							{
-								byte[] buf = new byte[100];
+								byte[] buf = new byte[512];
 								p = new DatagramPacket(buf, 0, buf.length);
 								try 
 								{
@@ -206,6 +197,7 @@ public class Inbox extends JFrame implements ActionListener{
 									msg += "!";
 								}else {
 									System.out.println(msg); //Stampa del messaggio appena arrivato
+									aggiunge();
 									listaMessaggi.add(msg);  //Aggiungo il messaggio arrivato alla lista dei messaggi
 								}
 							}
@@ -230,7 +222,7 @@ public class Inbox extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent listener) {	
 		int chiave;
 
-
+		
 		if(listener.getSource()==scelta1)
 		{
 			casellaCesare.setVisible(true);
