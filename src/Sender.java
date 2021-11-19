@@ -327,6 +327,7 @@ public class Sender extends JFrame implements ActionListener
 			catch (IOException evt) 
 			{
 				System.out.println("Messaggio non inviato");
+				evt.printStackTrace();
 			}
 		}
 		if(esci== e.getSource() )
