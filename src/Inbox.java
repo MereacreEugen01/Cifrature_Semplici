@@ -162,7 +162,7 @@ public class Inbox extends JFrame implements ActionListener{
 		try 
 		{
 			//Creazione socket sulla porta che diamo in input al nostro Secret Inbox
-			socket = new DatagramSocket(50000);
+			socket = new DatagramSocket(port);
 
 			Thread t = new Thread() 
 			{
@@ -190,16 +190,9 @@ public class Inbox extends JFrame implements ActionListener{
 									e.printStackTrace();
 								}
 								String msg = new String(p.getData(), 0, p.getLength());
-								System.out.println(msg);
-								//Controllo se il messaggio arrivato è uguale a "pronto" , se si cambio il messaggio in "pronto!"
-								if(msg.trim().equals("pronto")) 
-								{
-									msg += "!";
-								}else {
-									System.out.println(msg); //Stampa del messaggio appena arrivato
-									aggiunge();
-									listaMessaggi.add(msg);  //Aggiungo il messaggio arrivato alla lista dei messaggi
-								}
+								System.out.println(msg); //Stampa del messaggio appena arrivato
+								aggiunge();
+								listaMessaggi.add(msg);  //Aggiungo il messaggio arrivato alla lista dei messaggi
 							}
 						}
 
