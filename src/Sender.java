@@ -49,15 +49,9 @@ public class Sender extends JFrame implements ActionListener
 	private DatagramPacket pacchettoRicevuto;
 	private String messaggioRicevuto = "";
 
-	private boolean tuttOk = true;
-
-	private Thread thread = new Thread();
-
 	public Sender()
 	{
 		super("Secret Sender");
-
-		avvioThreadDiLettura();//Attivazione thread con socket di ascolto
 
 		setBounds(x, y, larghezza, altezza);
 		pannelloPrincipale = (JPanel)getContentPane();
@@ -332,41 +326,8 @@ public class Sender extends JFrame implements ActionListener
 		}
 		if(esci== e.getSource() )
 		{
-			endingTheSocket();
-		}
-	}
-
-	public void avvioThreadDiLettura() {
-		thread.run();
-	}
-
-	private void run() {
-		do{
-			try {
-				for(int k = 0; k < stringaDiByte.length; k++)
-				{
-					stringaDiByte[k] = 0;
-				}
-				pacchettoRicevuto  = new DatagramPacket(stringaDiByte,stringaDiByte.length);
-				socketSender.receive(pacchettoRicevuto);
-				messaggioRicevuto = new String(pacchettoRicevuto.getData(), 0, pacchettoRicevuto.getData().length).trim();
-
-				if(messaggioRicevuto.trim().contains("Pronto!")) {}
-				else{
-					socketSender.close();
-					System.exit(0);
-				}
-			} catch (IOException e) {}
-		}while(tuttOk);
-	}
-
-	private void endingTheSocket() {
-		try {
-			messaggioRicevuto = "_";
-			pacchettoRicevuto = new DatagramPacket(messaggioRicevuto.getBytes(),messaggioRicevuto.getBytes().length, InetAddress.getByName("localhost"), socketSender.getLocalPort());
-			socketSender.send(pacchettoRicevuto);
-		}catch(IOException event) {
-
+			socketSender.close();
+			System.exit(0);
 		}
 	}
 
