@@ -315,15 +315,19 @@ public class Sender extends JFrame implements ActionListener
 			byte[] messaggioCifrato = null;
 			if (cifrCesare.isSelected()) messaggioCifrato = cifraCesare(messaggioDaCifrare, Integer.parseInt(textField_chiaveCesare.getText()));
 			else if (cifrVigenere.isSelected()) messaggioCifrato = cifraVigenere(messaggioDaCifrare, textField_chiaveVigenere.getText().getBytes());
-
+			
 
 			try 
 			{
+				socketSender = new DatagramSocket(Integer.parseInt(porta.getText()), InetAddress.getByName(ip.getText()));
 				datagrampacket = new DatagramPacket(messaggioCifrato, messaggioCifrato.length, InetAddress.getByName(ip.getText()), Integer.parseInt(porta.getText()));
 				socketSender.send(datagrampacket);
+				System.out.println("Messaggio inviato!");
 			}
 			catch (IOException evt) 
-			{}
+			{
+				System.out.println("Messaggio non inviato");
+			}
 		}
 		if(esci== e.getSource() )
 		{

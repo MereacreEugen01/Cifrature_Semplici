@@ -171,7 +171,7 @@ public class Inbox extends JFrame implements ActionListener{
 		try 
 		{
 			//Creazione socket sulla porta che diamo in input al nostro Secret Inbox
-			socket = new DatagramSocket(port);
+			socket = new DatagramSocket(50000);
 
 			Thread t = new Thread() 
 			{
