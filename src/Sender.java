@@ -46,8 +46,7 @@ public class Sender extends JFrame implements ActionListener
 
 	//Variabili per attendere una risposta
 	private byte stringaDiByte[] = new byte[64];
-	private DatagramPacket pacchettoRicevuto;
-	private String messaggioRicevuto = "";
+
 
 	public Sender()
 	{
@@ -313,7 +312,7 @@ public class Sender extends JFrame implements ActionListener
 
 			try 
 			{
-				socketSender = new DatagramSocket(Integer.parseInt(porta.getText()), InetAddress.getByName(ip.getText()));
+				socketSender = new DatagramSocket();
 				datagrampacket = new DatagramPacket(messaggioCifrato, messaggioCifrato.length, InetAddress.getByName(ip.getText()), Integer.parseInt(porta.getText()));
 				socketSender.send(datagrampacket);
 				System.out.println("Messaggio inviato!");

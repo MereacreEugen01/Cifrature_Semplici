@@ -73,9 +73,9 @@ public class Inbox extends JFrame implements ActionListener{
 	JLabel vuoto= new JLabel();
 
 	JLabel etichetta1= new JLabel("Secret Inbox");
-	
+
 	JPanel nord = new JPanel();
-	
+
 	JLabel etichetta5 = new JLabel("Porta: "+MainWindow.getNumeroPorta());
 
 	JComboBox tendina = new JComboBox();
@@ -124,7 +124,7 @@ public class Inbox extends JFrame implements ActionListener{
 		scelta2.addActionListener(this);
 		bottone1.addActionListener(this);
 
-		
+
 		this.setResizable(false);
 		this.setBounds(100,100,630,230); //Dimensione
 		this.setVisible(true);
@@ -215,7 +215,7 @@ public class Inbox extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent listener) {	
 		int chiave;
 
-		
+
 		if(listener.getSource()==scelta1)
 		{
 			casellaCesare.setVisible(true);
@@ -229,7 +229,10 @@ public class Inbox extends JFrame implements ActionListener{
 		else if(bottone1==listener.getSource()) {
 			if(scelta1.isSelected()) {
 				chiave = Integer.parseInt(casellaCesare.getText());
-				decifraCesare(listaMessaggi.get(tendina.getSelectedIndex()).getBytes(), chiave);
+				byte[] messaggioDecifrato = new byte[512];
+				messaggioDecifrato = decifraCesare(listaMessaggi.get(tendina.getSelectedIndex()).getBytes(), chiave);
+
+				JOptionPane.showMessageDialog(null, new String(messaggioDecifrato) , "messaggio" , JOptionPane.WARNING_MESSAGE);
 			}else if(scelta2.isSelected()) {
 				char[] chiaveV = casellaVigenere.getText().toCharArray();
 				if(chiaveV.length<5) 			
@@ -238,7 +241,15 @@ public class Inbox extends JFrame implements ActionListener{
 					byte [] key = new byte[chiaveV.length];
 					for(	int i = 0 ; i < key.length;i++)
 						key[i] = (byte)chiaveV[i];
-					decifraVigenere(listaMessaggi.get(tendina.getSelectedIndex()).getBytes(), key);
-				}}}
+					byte[] messaggioDecifrato = new byte[512];
+					messaggioDecifrato = decifraVigenere(listaMessaggi.get(tendina.getSelectedIndex()).getBytes(), key);
+
+					JOptionPane.showMessageDialog(null, new String(messaggioDecifrato) , "messaggio" , JOptionPane.WARNING_MESSAGE);
+
+				}
+			}
+			//	JOptionPane.showMessageDialog(null, new String(messaggioDecifrato) , "messaggio" , JOptionPane.WARNING_MESSAGE);
+
+		}
 	}
 }
