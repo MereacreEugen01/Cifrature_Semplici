@@ -18,7 +18,7 @@ public class Inbox extends JFrame implements ActionListener{
 	private JPanel pannelloMessaggi, pannelloCentro;
 	private JTextArea  areaMessaggioCifrato, areaMessaggioDecifrato;
 
-	private int altezza= 330, larghezza= 920;//dimensioni della finestra
+	private int altezza= 330, larghezza= 850;//dimensioni della finestra
 	private Dimension dim = Toolkit.getDefaultToolkit().getScreenSize(); //variabile di supporto per posizionare la finestra al centro dello schermo
 	private int x =  (dim.width-larghezza)/2, y = (dim.height-altezza)/2;//coordinate x e y per posizionare la finestra in maniera dinamica
 
@@ -43,9 +43,9 @@ public class Inbox extends JFrame implements ActionListener{
 			}
 			);
 
-
 	private JTextPane casellaVigenere = new JTextPane(
-			new DefaultStyledDocument() {
+			new DefaultStyledDocument() 
+			{
 				private static final long serialVersionUID = 1L;
 				//la chiave di vigenere può contenere solo lettere e non deve superare la lunghezza di 5 caratteri
 				@Override
@@ -63,30 +63,35 @@ public class Inbox extends JFrame implements ActionListener{
 			}
 			);
 
-
 	private JButton bottone1= new JButton("Decifra");
+	private JButton bottone2= new JButton("Esci");
+
 	JPanel ButtonPanel = new JPanel();
 
 	private JCheckBox scelta1 = new JCheckBox("Cesare");
 	private JCheckBox scelta2 = new JCheckBox("Vigenere");
+	private JCheckBox scelta3 = new JCheckBox("BRUTE FORCE");
 	private ButtonGroup gruppoScelta = new ButtonGroup();
 	private ArrayList<byte[]> messaggiRicevuti = new ArrayList<>();
 
 	JLabel etichetta2= new JLabel("Messaggi:");
 	JPanel center = new JPanel();
 
-	JLabel etichetta3= new JLabel("Cifratura");
+	JLabel etichetta3= new JLabel("Cifratura:");
 
-	JLabel etichetta4= new JLabel("Chiave");
+	JLabel etichetta4= new JLabel("Chiave:");
 
 	JLabel vuoto= new JLabel();
 
 	JLabel etichetta1= new JLabel("Secret Inbox");
+	JLabel sottotitolo = new JLabel("Mereacre Eugen & Lenzi Filippo 5IA");
 
 	JPanel nord = new JPanel();
 
 	JLabel etichetta5 = new JLabel("Porta: "+MainWindow.getNumeroPorta());
 
+	JLabel etichetta6 = new JLabel("IP di arrivo: ");
+	
 	JComboBox tendina = new JComboBox();
 
 	private DatagramSocket socket;
@@ -101,37 +106,65 @@ public class Inbox extends JFrame implements ActionListener{
 
 		gruppoScelta.add(scelta1);
 		gruppoScelta.add(scelta2);
-
+		gruppoScelta.add(scelta3);
 
 		casellaCesare.setVisible(true);
 		casellaVigenere.setVisible(false);
 
-		nord.setLayout(new FlowLayout());
+		nord.setLayout(new GridLayout(2,1));
+		etichetta1.setHorizontalAlignment(JLabel.CENTER);
+		sottotitolo.setHorizontalAlignment(JLabel.CENTER);
 		nord.add(etichetta1);
 
-		center.setLayout(new GridLayout(3,3));
+		nord.add(sottotitolo);
+		
+		//pannello delle impostazioni per la devifrazione
+		center.setLayout(null);
+
+		etichetta2.setBounds(10, 10, 100, 20);
 		center.add(etichetta2);
-		center.add(etichetta3);
-		center.add(etichetta4);
+
+		tendina.setBounds(10, 40, 150, 30);
 		center.add(tendina);
+
+		etichetta3.setBounds(180, 10, 100, 20);
+		center.add(etichetta3);
+
+		etichetta4.setBounds(290, 10, 100, 20);
+		center.add(etichetta4);
+
+		scelta1.setBounds(175, 40, 100, 20);
 		center.add(scelta1);
-		center.add(casellaCesare);
-		center.add(etichetta5);
+
+		scelta2.setBounds(175, 70, 100, 20);
 		center.add(scelta2);
+
+		scelta3.setBounds(175, 100, 150, 20);
+		center.add(scelta3);
+
+		casellaCesare.setBounds(290, 40, 100, 20);
+		center.add(casellaCesare);
+
+		casellaVigenere.setBounds(290, 40, 100, 20);
 		center.add(casellaVigenere);
+
+		etichetta5.setBounds(10, 100, 100, 20);
+		center.add(etichetta5);	
+		
+		//etichetta per sapere da dove arriva il messaggio da decifrare
+		etichetta6.setBounds(10, 130, 300, 20);
+		center.add(etichetta6);	
 
 		ButtonPanel.setLayout(new FlowLayout());
 		ButtonPanel.add(bottone1);
+		ButtonPanel.add(bottone2);
 		//pannello centrale con le impostazioni per la decifrazione 
 		pannelloCentro = new JPanel();
 		pannelloCentro.setLayout(new GridLayout(1,2));
 
 		//pannello laterale per i messaggi
-
 		pannelloMessaggi = new JPanel();
 		pannelloMessaggi.setLayout(new GridLayout(1,2));
-
-
 
 		JLabel messaggioCifrato = new JLabel("Messaggio Cifrato:");
 		areaMessaggioCifrato = new JTextArea();
@@ -174,7 +207,10 @@ public class Inbox extends JFrame implements ActionListener{
 
 		scelta1.addActionListener(this);
 		scelta2.addActionListener(this);
+		scelta3.addActionListener(this);
 		bottone1.addActionListener(this);
+		bottone2.addActionListener(this);
+
 
 
 		this.setResizable(false);
@@ -249,50 +285,54 @@ public class Inbox extends JFrame implements ActionListener{
 								aggiunge();
 							}
 						}
-
 					};
 					t.start();
 				}
-
 			};
 			t.start();
-
 		} 
 		catch (SocketException e) 
 		{
 			JOptionPane.showMessageDialog(null, "Non è stato possibile aprire la socket", "Attenzione", JOptionPane.WARNING_MESSAGE);
 		}
-
 	}
-
 
 	public void actionPerformed(ActionEvent listener) {	
 		int chiave;
-
 
 		if(listener.getSource()==scelta1)
 		{
 			casellaCesare.setVisible(true);
 			casellaVigenere.setVisible(false);
-		} else if (listener.getSource()==scelta2)
+		}
+		else if (listener.getSource()==scelta2)
 		{
 			casellaCesare.setVisible(false);
 			casellaVigenere.setVisible(true);
 		}
+		else if (listener.getSource()==scelta3)
+		{
+			casellaCesare.setVisible(false);
+			casellaVigenere.setVisible(false);
+		}
 
-		else if(bottone1==listener.getSource()) {
-			if(scelta1.isSelected()) {
+		else if(bottone1==listener.getSource()) 
+		{
+			if(scelta1.isSelected()) 
+			{
 				chiave = Integer.parseInt(casellaCesare.getText());
 				byte[] messaggioDecifrato = new byte[512];
 				messaggioDecifrato = decifraCesare(messaggiRicevuti.get(tendina.getSelectedIndex()), chiave);
 				areaMessaggioCifrato.setText(new String(messaggiRicevuti.get(tendina.getSelectedIndex())));
 				areaMessaggioDecifrato.setText(new String(messaggioDecifrato));
-				//JOptionPane.showMessageDialog(null,  , "messaggio" , JOptionPane.WARNING_MESSAGE);
-			}else if(scelta2.isSelected()) {
+			}
+			else if(scelta2.isSelected()) 
+			{
 				char[] chiaveV = casellaVigenere.getText().toCharArray();
 				if(chiaveV.length<5) 			
 					JOptionPane.showMessageDialog(null,"La chiave deve essere una parola di 5 lettere", "errore" , JOptionPane.WARNING_MESSAGE);
-				else {
+				else 
+				{
 					byte [] key = new byte[chiaveV.length];
 					for(	int i = 0 ; i < key.length;i++)
 						key[i] = (byte)chiaveV[i];
@@ -302,11 +342,17 @@ public class Inbox extends JFrame implements ActionListener{
 					areaMessaggioDecifrato.setText(new String(messaggioDecifrato));
 
 					//JOptionPane.showMessageDialog(null, new String(messaggioDecifrato) , "messaggio" , JOptionPane.WARNING_MESSAGE);
-
 				}
 			}
-			//	JOptionPane.showMessageDialog(null, new String(messaggioDecifrato) , "messaggio" , JOptionPane.WARNING_MESSAGE);
+			else if(scelta3.isSelected())
+			{
+				JOptionPane.showMessageDialog(null, "Complimenti, hai scelto la brute force, forse verrà implementata" , "messaggio" , JOptionPane.WARNING_MESSAGE);
 
+			}
+		}
+		else if(bottone2==listener.getSource())
+		{
+			System.exit(0);
 		}
 	}
 }

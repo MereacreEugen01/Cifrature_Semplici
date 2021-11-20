@@ -86,7 +86,7 @@ public class MainWindow extends JFrame implements ActionListener
 		//Se viene selezionata la scelta 1 (Secret Inbox) allora apparirà un messaggio di conferma e si apparirà la finestra del Secret Sender
 		if(procedi==listener.getSource() && opzioneUno.isSelected())
 		{
-			JOptionPane.showMessageDialog(null,"Hai selezionato che questa macchina è il Secret Sender", "Avviso" , JOptionPane.INFORMATION_MESSAGE);
+			//JOptionPane.showMessageDialog(null,"Hai selezionato che questa macchina è il Secret Sender", "Avviso" , JOptionPane.INFORMATION_MESSAGE);
 			Sender finestraSender = new Sender();
 			this.dispose();
 		}

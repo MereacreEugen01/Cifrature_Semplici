@@ -9,17 +9,12 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -43,9 +38,6 @@ public class Sender extends JFrame implements ActionListener
 	//Variabili per inviare
 	private DatagramSocket socketSender;
 	private DatagramPacket datagrampacket;
-
-	//Variabili per attendere una risposta
-	private byte stringaDiByte[] = new byte[64];
 
 
 	public Sender()
@@ -203,6 +195,8 @@ public class Sender extends JFrame implements ActionListener
 		ip = new JTextPane(
 				new DefaultStyledDocument() 
 				{
+
+					private static final long serialVersionUID = 1L;
 					/*
 					private static final long serialVersionUID = 1L;
 					@Override
