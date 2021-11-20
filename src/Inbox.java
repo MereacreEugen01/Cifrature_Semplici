@@ -61,7 +61,7 @@ public class Inbox extends JFrame implements ActionListener{
 	private JCheckBox scelta1 = new JCheckBox("Cesare");
 	private JCheckBox scelta2 = new JCheckBox("Vigenere");
 	private ButtonGroup gruppoScelta = new ButtonGroup();
-
+	private ArrayList<byte[]> messaggiRicevuti = new ArrayList<>();
 
 	JLabel etichetta2= new JLabel("Messaggi:");
 	JPanel center = new JPanel();
@@ -140,7 +140,7 @@ public class Inbox extends JFrame implements ActionListener{
 
 	public byte[] decifraCesare(byte[] s , int chiave) {
 		byte[] c = new byte[s.length];
-		if(chiave>255) chiave -= 255;
+		chiave = chiave % 255;
 		byte k = (byte)(chiave);
 		for (int i = 0; i < s.length;i++) {
 			byte n = (byte) (s[i] - k);
@@ -152,7 +152,7 @@ public class Inbox extends JFrame implements ActionListener{
 	public byte[] decifraVigenere(byte[] s , byte[] chiave) {
 		byte[] c = new byte[s.length];
 		for (int i = 0; i < s.length;i++) {
-			c[i] = (byte)(s[i] - chiave[i%chiave.length]);
+			c[i] = (byte)((byte)s[i] - (byte)chiave[i%chiave.length]);
 		}
 		return c;
 	}
@@ -183,15 +183,17 @@ public class Inbox extends JFrame implements ActionListener{
 								{
 									//Ricezione messaggio
 									socket.receive(p);
-
 								} 
 								catch (IOException e) 
 								{
 									e.printStackTrace();
 								}
 								String msg = new String(p.getData(), 0, p.getLength());
+								byte[] m = new byte[p.getLength()];
+								for(int i =0;i<p.getLength();i++) m[i] = p.getData()[i];
 								System.out.println(msg); //Stampa del messaggio appena arrivato
 								listaMessaggi.add(msg);  //Aggiungo il messaggio arrivato alla lista dei messaggi
+								messaggiRicevuti.add(m);
 								aggiunge();
 							}
 						}
@@ -230,7 +232,7 @@ public class Inbox extends JFrame implements ActionListener{
 			if(scelta1.isSelected()) {
 				chiave = Integer.parseInt(casellaCesare.getText());
 				byte[] messaggioDecifrato = new byte[512];
-				messaggioDecifrato = decifraCesare(listaMessaggi.get(tendina.getSelectedIndex()).getBytes(), chiave);
+				messaggioDecifrato = decifraCesare(messaggiRicevuti.get(tendina.getSelectedIndex()), chiave);
 
 				JOptionPane.showMessageDialog(null, new String(messaggioDecifrato) , "messaggio" , JOptionPane.WARNING_MESSAGE);
 			}else if(scelta2.isSelected()) {
@@ -242,7 +244,7 @@ public class Inbox extends JFrame implements ActionListener{
 					for(	int i = 0 ; i < key.length;i++)
 						key[i] = (byte)chiaveV[i];
 					byte[] messaggioDecifrato = new byte[512];
-					messaggioDecifrato = decifraVigenere(listaMessaggi.get(tendina.getSelectedIndex()).getBytes(), key);
+					messaggioDecifrato = decifraVigenere(messaggiRicevuti.get(tendina.getSelectedIndex()), key);
 
 					JOptionPane.showMessageDialog(null, new String(messaggioDecifrato) , "messaggio" , JOptionPane.WARNING_MESSAGE);
 

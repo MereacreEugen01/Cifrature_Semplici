@@ -296,10 +296,10 @@ public class Sender extends JFrame implements ActionListener
 		if(invia == e.getSource())
 		{
 			//manca da prendere il messaggio che l'utente ha scritto, codificarlo e inviarlo
-			char[] key = (codiceAgente.getText()+": "+messaggio.getText()).toCharArray();
-			byte [] messaggioDaCifrare = new byte[key.length];
-			for(int i = 0; i < key.length; i++)
-				messaggioDaCifrare[i] = (byte)key[i];
+			char[] msg = (codiceAgente.getText()+": "+messaggio.getText()).toCharArray();
+			byte [] messaggioDaCifrare = new byte[msg.length];
+			for(int i = 0; i < msg.length; i++)
+				messaggioDaCifrare[i] = (byte)msg[i];
 
 			//CifrarioCesare cifratoreCesare = new CifrarioCesare(messaggioDaCifrare, Integer.parseInt(textField_chiaveCesare.getText()));
 			//cifratoreCesare.cripta(messaggioDaCifrare, Integer.parseInt(textField_chiaveCesare.getText()));
@@ -307,7 +307,11 @@ public class Sender extends JFrame implements ActionListener
 			//System.out.println(		pippo);
 			byte[] messaggioCifrato = null;
 			if (cifrCesare.isSelected()) messaggioCifrato = cifraCesare(messaggioDaCifrare, Integer.parseInt(textField_chiaveCesare.getText()));
-			else if (cifrVigenere.isSelected()) messaggioCifrato = cifraVigenere(messaggioDaCifrare, textField_chiaveVigenere.getText().getBytes());
+			else if (cifrVigenere.isSelected()) {
+				byte[] key = new byte[5];
+				for(int i= 0;i<key.length;i++) key[i] = (byte)(textField_chiaveVigenere.getText().charAt(i));
+				messaggioCifrato = cifraVigenere(messaggioDaCifrare,key);
+			}
 			
 
 			try 
@@ -332,10 +336,10 @@ public class Sender extends JFrame implements ActionListener
 
 	public byte[] cifraCesare(byte[] s , int chiave) {
 		byte[] c = new byte[s.length];
-		if(chiave>255) chiave %= 255;
+		chiave = chiave % 255;
 		byte k = (byte)chiave;
 		for (int i = 0; i < s.length; i++) {
-			byte n = (byte) (s[i] + k);
+			byte n = (byte) ((byte)s[i] + (byte)k);
 			c[i] = n;
 		}
 		return c;
