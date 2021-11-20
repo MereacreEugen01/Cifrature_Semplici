@@ -191,8 +191,8 @@ public class Inbox extends JFrame implements ActionListener{
 								}
 								String msg = new String(p.getData(), 0, p.getLength());
 								System.out.println(msg); //Stampa del messaggio appena arrivato
-								aggiunge();
 								listaMessaggi.add(msg);  //Aggiungo il messaggio arrivato alla lista dei messaggi
+								aggiunge();
 							}
 						}
 
