@@ -96,7 +96,7 @@ public class MainWindow extends JFrame implements ActionListener
 			do {
 				porta = JOptionPane.showInputDialog(null,"Inserire il numero della porta", "Numero Porta" , JOptionPane.QUESTION_MESSAGE);
 				System.out.println(porta);
-			}while(!eUnNumero(porta));
+			}while(!eUnNumero(porta) /*& Integer.parseInt(porta) >= 50000*/); //controllo da fixare 
 			numeroPorta=Integer.parseInt(porta);
 			Inbox finestraInbox = new Inbox();
 			this.dispose();

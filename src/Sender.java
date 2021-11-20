@@ -203,6 +203,7 @@ public class Sender extends JFrame implements ActionListener
 		ip = new JTextPane(
 				new DefaultStyledDocument() 
 				{
+					/*
 					private static final long serialVersionUID = 1L;
 					@Override
 					public void insertString(int offs, String str, AttributeSet a) 
@@ -219,6 +220,7 @@ public class Sender extends JFrame implements ActionListener
 						}
 
 					}
+					*/
 				}
 				);
 

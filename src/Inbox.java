@@ -13,6 +13,15 @@ import java.net.SocketException;
 import java.util.ArrayList;
 public class Inbox extends JFrame implements ActionListener{
 
+	private static final long serialVersionUID = 1L;
+
+	private JPanel pannelloMessaggi, pannelloCentro;
+	private JTextArea  areaMessaggioCifrato, areaMessaggioDecifrato;
+
+	private int altezza= 330, larghezza= 920;//dimensioni della finestra
+	private Dimension dim = Toolkit.getDefaultToolkit().getScreenSize(); //variabile di supporto per posizionare la finestra al centro dello schermo
+	private int x =  (dim.width-larghezza)/2, y = (dim.height-altezza)/2;//coordinate x e y per posizionare la finestra in maniera dinamica
+
 	private JTextPane casellaCesare = new JTextPane(
 			//La chiave di cesare non deve contenere nessun carattere quindi non appena viene inserita una lettere verrà subito eliminata
 			new DefaultStyledDocument() 
@@ -113,12 +122,55 @@ public class Inbox extends JFrame implements ActionListener{
 
 		ButtonPanel.setLayout(new FlowLayout());
 		ButtonPanel.add(bottone1);
+		//pannello centrale con le impostazioni per la decifrazione 
+		pannelloCentro = new JPanel();
+		pannelloCentro.setLayout(new GridLayout(1,2));
+
+		//pannello laterale per i messaggi
+
+		pannelloMessaggi = new JPanel();
+		pannelloMessaggi.setLayout(new GridLayout(1,2));
+
+
+
+		JLabel messaggioCifrato = new JLabel("Messaggio Cifrato:");
+		areaMessaggioCifrato = new JTextArea();
+		areaMessaggioCifrato.setPreferredSize(new Dimension(200,300));
+		areaMessaggioCifrato.setLineWrap(true);
+		areaMessaggioCifrato.setEditable(false);
+
+		JPanel sottoPannelloSinistra = new JPanel();
+		sottoPannelloSinistra.setLayout(new FlowLayout());
+		sottoPannelloSinistra.add(messaggioCifrato);
+		sottoPannelloSinistra.add(areaMessaggioCifrato);
+
+		JLabel MessaggioDecifrato = new JLabel("Messaggio Cifrato:");
+		areaMessaggioDecifrato = new JTextArea();
+		areaMessaggioDecifrato.setPreferredSize(new Dimension(200,300));
+		areaMessaggioDecifrato.setLineWrap(true);
+		areaMessaggioDecifrato.setEditable(false);
+
+
+		JPanel sottoPannelloDestra = new JPanel();
+		sottoPannelloDestra.setLayout(new FlowLayout());
+		sottoPannelloDestra.add(MessaggioDecifrato);
+		sottoPannelloDestra.add(areaMessaggioDecifrato);
+
+		pannelloMessaggi.add(sottoPannelloSinistra);
+		pannelloMessaggi.add(sottoPannelloDestra);
+
+		center.setMaximumSize(new Dimension(100, 100));
+		pannelloCentro.add(center);
+		pannelloCentro.add(pannelloMessaggi);
+
 
 		Container c = this.getContentPane();
 		c.setLayout(new BorderLayout());   //Assegnamento dei layout
 		c.add(nord,BorderLayout.NORTH);
-		c.add(center,BorderLayout.CENTER);
+		c.add(pannelloCentro,BorderLayout.CENTER);
 		c.add(ButtonPanel,BorderLayout.SOUTH);
+		//	c.add(pannelloMessaggi, BorderLayout.EAST);
+
 
 		scelta1.addActionListener(this);
 		scelta2.addActionListener(this);
@@ -126,7 +178,7 @@ public class Inbox extends JFrame implements ActionListener{
 
 
 		this.setResizable(false);
-		this.setBounds(100,100,630,230); //Dimensione
+		this.setBounds(x, y, larghezza, altezza); //Dimensione
 		this.setVisible(true);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		ricezioneMessaggi(MainWindow.getNumeroPorta());
@@ -233,8 +285,9 @@ public class Inbox extends JFrame implements ActionListener{
 				chiave = Integer.parseInt(casellaCesare.getText());
 				byte[] messaggioDecifrato = new byte[512];
 				messaggioDecifrato = decifraCesare(messaggiRicevuti.get(tendina.getSelectedIndex()), chiave);
-
-				JOptionPane.showMessageDialog(null, new String(messaggioDecifrato) , "messaggio" , JOptionPane.WARNING_MESSAGE);
+				areaMessaggioCifrato.setText(new String(messaggiRicevuti.get(tendina.getSelectedIndex())));
+				areaMessaggioDecifrato.setText(new String(messaggioDecifrato));
+				//JOptionPane.showMessageDialog(null,  , "messaggio" , JOptionPane.WARNING_MESSAGE);
 			}else if(scelta2.isSelected()) {
 				char[] chiaveV = casellaVigenere.getText().toCharArray();
 				if(chiaveV.length<5) 			
@@ -244,9 +297,11 @@ public class Inbox extends JFrame implements ActionListener{
 					for(	int i = 0 ; i < key.length;i++)
 						key[i] = (byte)chiaveV[i];
 					byte[] messaggioDecifrato = new byte[512];
-					messaggioDecifrato = decifraVigenere(messaggiRicevuti.get(tendina.getSelectedIndex()), key);
+					areaMessaggioDecifrato.setText(new String(messaggioDecifrato));
+					areaMessaggioCifrato.setText(new String(messaggiRicevuti.get(tendina.getSelectedIndex())));
+					areaMessaggioDecifrato.setText(new String(messaggioDecifrato));
 
-					JOptionPane.showMessageDialog(null, new String(messaggioDecifrato) , "messaggio" , JOptionPane.WARNING_MESSAGE);
+					//JOptionPane.showMessageDialog(null, new String(messaggioDecifrato) , "messaggio" , JOptionPane.WARNING_MESSAGE);
 
 				}
 			}
