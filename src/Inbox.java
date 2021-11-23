@@ -1,3 +1,13 @@
+/**
+ ** Nome programma:Cifrature semplici / Inbox
+ ** Versione programma:1.0
+ ** Data:23/11/21
+ ** Autore: Filippo Lenzi
+ ** Problema: Vedere relazione o consegna per testo
+ ** Dati:
+ ** Osservazioni: Questa classe server per decifrare i messaggi 
+ */
+
 import javax.swing.*;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -17,7 +27,6 @@ public class Inbox extends JFrame implements ActionListener{
 
 	private JPanel pannelloMessaggi, pannelloCentro;
 	private JTextArea  areaMessaggioCifrato, areaMessaggioDecifrato;
-
 	private int altezza= 330, larghezza= 850;//dimensioni della finestra
 	private Dimension dim = Toolkit.getDefaultToolkit().getScreenSize(); //variabile di supporto per posizionare la finestra al centro dello schermo
 	private int x =  (dim.width-larghezza)/2, y = (dim.height-altezza)/2;//coordinate x e y per posizionare la finestra in maniera dinamica
@@ -92,14 +101,12 @@ public class Inbox extends JFrame implements ActionListener{
 
 	JLabel etichetta6 = new JLabel("IP di arrivo: ");
 	
-	JComboBox tendina = new JComboBox();
+	JComboBox<String> tendina = new JComboBox<String>();
 
 	private DatagramSocket socket;
 	private DatagramPacket p;
 
-	private ArrayList<String> listaMessaggi = new ArrayList();
-
-	private Thread thread = new Thread();
+	private ArrayList<String> listaMessaggi = new ArrayList<>();
 
 	public Inbox() {
 		super("Inbox"); //Creazione finestra
@@ -118,42 +125,43 @@ public class Inbox extends JFrame implements ActionListener{
 
 		nord.add(sottotitolo);
 		
-		//pannello delle impostazioni per la devifrazione
+		//pannello delle impostazioni per la decifrazione, utilizzo tutti valori assoluti per semplicità
 		center.setLayout(null);
-
+		//Etichetta per scegliere i messaggi
 		etichetta2.setBounds(10, 10, 100, 20);
 		center.add(etichetta2);
-
+		//Menù per la scelta del messaggio da decifrare
 		tendina.setBounds(10, 40, 150, 30);
 		center.add(tendina);
-
+		//Etichetta per scegliere il metodo di decifratura
 		etichetta3.setBounds(180, 10, 100, 20);
 		center.add(etichetta3);
-
+		//Etuchetta per immettere la chiave
 		etichetta4.setBounds(290, 10, 100, 20);
 		center.add(etichetta4);
-
+		//Casella per spuntare cesare
 		scelta1.setBounds(175, 40, 100, 20);
 		center.add(scelta1);
-
+		//Casella per spuntare Vigenere
 		scelta2.setBounds(175, 70, 100, 20);
 		center.add(scelta2);
 
+		//tasco per il brute force 
 		scelta3.setBounds(175, 100, 150, 20);
-		center.add(scelta3);
-
+		//center.add(scelta3);
+		//Campo per mettere la chiave di cesare
 		casellaCesare.setBounds(290, 40, 100, 20);
 		center.add(casellaCesare);
-
+		//Campo per mettere la chiave di Vigenere
 		casellaVigenere.setBounds(290, 40, 100, 20);
 		center.add(casellaVigenere);
-
+		//Etichetta per sapere la porta aperta
 		etichetta5.setBounds(10, 100, 100, 20);
 		center.add(etichetta5);	
 		
-		//etichetta per sapere da dove arriva il messaggio da decifrare
+		//Etichetta per sapere da dove arriva il messaggio da decifrare
 		etichetta6.setBounds(10, 130, 300, 20);
-		center.add(etichetta6);	
+		//center.add(etichetta6);	
 
 		ButtonPanel.setLayout(new FlowLayout());
 		ButtonPanel.add(bottone1);
@@ -165,7 +173,7 @@ public class Inbox extends JFrame implements ActionListener{
 		//pannello laterale per i messaggi
 		pannelloMessaggi = new JPanel();
 		pannelloMessaggi.setLayout(new GridLayout(1,2));
-
+		//Definizione della parte destra dell'interfaccia dove ci saranno i messaggi decifrati
 		JLabel messaggioCifrato = new JLabel("Messaggio Cifrato:");
 		areaMessaggioCifrato = new JTextArea();
 		areaMessaggioCifrato.setPreferredSize(new Dimension(200,300));
@@ -177,7 +185,7 @@ public class Inbox extends JFrame implements ActionListener{
 		sottoPannelloSinistra.add(messaggioCifrato);
 		sottoPannelloSinistra.add(areaMessaggioCifrato);
 
-		JLabel MessaggioDecifrato = new JLabel("Messaggio Cifrato:");
+		JLabel MessaggioDecifrato = new JLabel("Messaggio Decifrato:");
 		areaMessaggioDecifrato = new JTextArea();
 		areaMessaggioDecifrato.setPreferredSize(new Dimension(200,300));
 		areaMessaggioDecifrato.setLineWrap(true);
@@ -202,16 +210,12 @@ public class Inbox extends JFrame implements ActionListener{
 		c.add(nord,BorderLayout.NORTH);
 		c.add(pannelloCentro,BorderLayout.CENTER);
 		c.add(ButtonPanel,BorderLayout.SOUTH);
-		//	c.add(pannelloMessaggi, BorderLayout.EAST);
-
-
+		//Aggiunta ActionListener 
 		scelta1.addActionListener(this);
 		scelta2.addActionListener(this);
 		scelta3.addActionListener(this);
 		bottone1.addActionListener(this);
 		bottone2.addActionListener(this);
-
-
 
 		this.setResizable(false);
 		this.setBounds(x, y, larghezza, altezza); //Dimensione
@@ -219,13 +223,13 @@ public class Inbox extends JFrame implements ActionListener{
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		ricezioneMessaggi(MainWindow.getNumeroPorta());
 	}
-
+	//Finzione per rendere il menù a tendina dinamico
 	public void aggiunge() {
 		tendina.removeAllItems();
 		for (int i =0; i<listaMessaggi.size(); i++)
 			tendina.addItem (listaMessaggi.get(i));
 	}
-
+	//Funzione per decifrare con Cesare
 	public byte[] decifraCesare(byte[] s , int chiave) {
 		byte[] c = new byte[s.length];
 		chiave = chiave % 255;
@@ -236,7 +240,7 @@ public class Inbox extends JFrame implements ActionListener{
 		}
 		return c;
 	}
-
+	//Funzione per decifrare con Vigenere 
 	public byte[] decifraVigenere(byte[] s , byte[] chiave) {
 		byte[] c = new byte[s.length];
 		for (int i = 0; i < s.length;i++) {
@@ -244,7 +248,7 @@ public class Inbox extends JFrame implements ActionListener{
 		}
 		return c;
 	}
-
+	//Socket per ricevere i messaggi
 	public void ricezioneMessaggi(int port) 
 	{ 
 		try 
@@ -296,10 +300,10 @@ public class Inbox extends JFrame implements ActionListener{
 			JOptionPane.showMessageDialog(null, "Non è stato possibile aprire la socket", "Attenzione", JOptionPane.WARNING_MESSAGE);
 		}
 	}
-
+	// implementazione action listener 
 	public void actionPerformed(ActionEvent listener) {	
 		int chiave;
-
+		//controllo delle varie caselle spuntate 
 		if(listener.getSource()==scelta1)
 		{
 			casellaCesare.setVisible(true);
@@ -315,7 +319,7 @@ public class Inbox extends JFrame implements ActionListener{
 			casellaCesare.setVisible(false);
 			casellaVigenere.setVisible(false);
 		}
-
+		//decifro con cesare 
 		else if(bottone1==listener.getSource()) 
 		{
 			if(scelta1.isSelected()) 
@@ -325,7 +329,7 @@ public class Inbox extends JFrame implements ActionListener{
 				messaggioDecifrato = decifraCesare(messaggiRicevuti.get(tendina.getSelectedIndex()), chiave);
 				areaMessaggioCifrato.setText(new String(messaggiRicevuti.get(tendina.getSelectedIndex())));
 				areaMessaggioDecifrato.setText(new String(messaggioDecifrato));
-			}
+			}//decifro con vigenere
 			else if(scelta2.isSelected()) 
 			{
 				char[] chiaveV = casellaVigenere.getText().toCharArray();
@@ -340,14 +344,11 @@ public class Inbox extends JFrame implements ActionListener{
 					areaMessaggioDecifrato.setText(new String(messaggioDecifrato));
 					areaMessaggioCifrato.setText(new String(messaggiRicevuti.get(tendina.getSelectedIndex())));
 					areaMessaggioDecifrato.setText(new String(messaggioDecifrato));
-
-					//JOptionPane.showMessageDialog(null, new String(messaggioDecifrato) , "messaggio" , JOptionPane.WARNING_MESSAGE);
 				}
-			}
+			}//metodo con il brute force da implementare
 			else if(scelta3.isSelected())
 			{
-				JOptionPane.showMessageDialog(null, "Complimenti, hai scelto la brute force, forse verrà implementata" , "messaggio" , JOptionPane.WARNING_MESSAGE);
-
+				JOptionPane.showMessageDialog(null, "Coming soon..." , "messaggio" , JOptionPane.INFORMATION_MESSAGE);
 			}
 		}
 		else if(bottone2==listener.getSource())

@@ -1,4 +1,12 @@
-
+/**
+ ** Nome programma:Cifrature semplici / MainWindow
+ ** Versione programma:1.0
+ ** Data:23/11/21
+ ** Autore: Eugen Mereacre 
+ ** Problema: Vedere relazione o consegna per testo
+ ** Dati:
+ ** Osservazioni: Questa classe server per scegliere il tipo di programma da avviare  
+ */
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -88,6 +96,7 @@ public class MainWindow extends JFrame implements ActionListener
 		{
 			//JOptionPane.showMessageDialog(null,"Hai selezionato che questa macchina è il Secret Sender", "Avviso" , JOptionPane.INFORMATION_MESSAGE);
 			Sender finestraSender = new Sender();
+			finestraSender.setVisible(true);
 			this.dispose();
 		}
 		//Se viene selezionata la scelta 2 (Secret Inbox) allora apparirà un messaggio di conferma e si apparirà la finestra del Secret Inbox
@@ -99,6 +108,7 @@ public class MainWindow extends JFrame implements ActionListener
 			}while(!eUnNumero(porta) /*& Integer.parseInt(porta) >= 50000*/); //controllo da fixare 
 			numeroPorta=Integer.parseInt(porta);
 			Inbox finestraInbox = new Inbox();
+			finestraInbox.setVisible(true);
 			this.dispose();
 		}
 		//se viene premuto il tasto annulla si chiude il programma
@@ -110,10 +120,6 @@ public class MainWindow extends JFrame implements ActionListener
 
 	public static int getNumeroPorta() {
 		return numeroPorta;
-	}
-
-	public void setNumeroPorta(int numeroPorta) {
-		this.numeroPorta = numeroPorta;
 	}
 
 	private static boolean eUnNumero(String stringa) 

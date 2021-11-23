@@ -1,3 +1,12 @@
+/**
+ ** Nome programma:Cifrature semplici / Sender
+ ** Versione programma:1.0
+ ** Data:23/11/21
+ ** Autore: Eugen Mereacre 
+ ** Problema: Vedere relazione o consegna per testo
+ ** Dati:
+ ** Osservazioni: Questa classe consente di cifrare e inviare i messaggi
+ */
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -20,7 +29,6 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 
-
 public class Sender extends JFrame implements ActionListener
 {
 	private JPanel pannelloPrincipale, pannelloCentrale, pannelloNord, pannelloSud, pannellOvest, pannelloCentroEst;
@@ -39,11 +47,10 @@ public class Sender extends JFrame implements ActionListener
 	private DatagramSocket socketSender;
 	private DatagramPacket datagrampacket;
 
-
 	public Sender()
 	{
 		super("Secret Sender");
-
+		//Nome pannello
 		setBounds(x, y, larghezza, altezza);
 		pannelloPrincipale = (JPanel)getContentPane();
 		pannelloCentrale = new JPanel();
@@ -109,13 +116,9 @@ public class Sender extends JFrame implements ActionListener
 		sottoPannello4.setLayout(flow);
 		sottoPannello4.add(scrollBar);	
 
-
 		titolo = new JLabel("Secret sender");
 		titolo.setAlignmentX(CENTER_ALIGNMENT);
-		//new BowLayout
 
-		pannelloPrincipale.add(titolo, BorderLayout.NORTH);
-		pannelloPrincipale.add(pannelloCentrale, BorderLayout.CENTER);
 
 		pannellOvest.add(sottoPannello1);
 		pannellOvest.add(sottoPannello2);
@@ -190,12 +193,11 @@ public class Sender extends JFrame implements ActionListener
 		pannelloCentroEst.add(pannellino);
 		pannelloCentroEst.add(pannellino2);
 
-		//controllo sull'ip affinché non ci siano lettere
+		//sull'ip non ci sono particolari controlli in quanto di può mettere anche un dns 
 		JPanel pannellino3 = new JPanel();
 		ip = new JTextPane(
 				new DefaultStyledDocument() 
 				{
-
 					private static final long serialVersionUID = 1L;
 					/*
 					private static final long serialVersionUID = 1L;
@@ -214,7 +216,7 @@ public class Sender extends JFrame implements ActionListener
 						}
 
 					}
-					*/
+					 */
 				}
 				);
 
@@ -284,32 +286,26 @@ public class Sender extends JFrame implements ActionListener
 		{
 			textField_chiaveCesare.setVisible(true);
 			textField_chiaveVigenere.setVisible(false);
-		} else if(e.getSource() == cifrVigenere)
+		} 
+		else if(e.getSource() == cifrVigenere)
 		{
 			textField_chiaveCesare.setVisible(false);
 			textField_chiaveVigenere.setVisible(true);
 		}
 		if(invia == e.getSource())
 		{
-			//manca da prendere il messaggio che l'utente ha scritto, codificarlo e inviarlo
 			char[] msg = (codiceAgente.getText()+": "+messaggio.getText()).toCharArray();
 			byte [] messaggioDaCifrare = new byte[msg.length];
 			for(int i = 0; i < msg.length; i++)
 				messaggioDaCifrare[i] = (byte)msg[i];
-
-			//CifrarioCesare cifratoreCesare = new CifrarioCesare(messaggioDaCifrare, Integer.parseInt(textField_chiaveCesare.getText()));
-			//cifratoreCesare.cripta(messaggioDaCifrare, Integer.parseInt(textField_chiaveCesare.getText()));
-			//  String pippo = new String(cifratoreCesare.cripta(messaggioDaCifrare, Integer.parseInt(textField_chiaveCesare.getText())));
-			//System.out.println(		pippo);
 			byte[] messaggioCifrato = null;
 			if (cifrCesare.isSelected()) messaggioCifrato = cifraCesare(messaggioDaCifrare, Integer.parseInt(textField_chiaveCesare.getText()));
-			else if (cifrVigenere.isSelected()) {
+			else if (cifrVigenere.isSelected())
+			{
 				byte[] key = new byte[5];
 				for(int i= 0;i<key.length;i++) key[i] = (byte)(textField_chiaveVigenere.getText().charAt(i));
 				messaggioCifrato = cifraVigenere(messaggioDaCifrare,key);
 			}
-			
-
 			try 
 			{
 				socketSender = new DatagramSocket();
@@ -325,29 +321,30 @@ public class Sender extends JFrame implements ActionListener
 		}
 		if(esci== e.getSource() )
 		{
-			socketSender.close();
 			System.exit(0);
 		}
 	}
-
-	public byte[] cifraCesare(byte[] s , int chiave) {
+	//funzione per cifrare i messaggi con Cesare
+	public byte[] cifraCesare(byte[] s , int chiave) 
+	{
 		byte[] c = new byte[s.length];
 		chiave = chiave % 255;
 		byte k = (byte)chiave;
-		for (int i = 0; i < s.length; i++) {
+		for (int i = 0; i < s.length; i++)
+		{
 			byte n = (byte) ((byte)s[i] + (byte)k);
 			c[i] = n;
 		}
 		return c;
 	}
-
+	//funzione per cifrare i messaggi con Vigenere
 	public byte[] cifraVigenere(byte[] s , byte[] chiave) 
 	{
 		byte[] c = new byte[s.length];
-		for (int i = 0; i < s.length; i++) {
+		for (int i = 0; i < s.length; i++) 
+		{
 			c[i] = (byte)((byte)s[i] + (byte)chiave[i%chiave.length]);
 		}
 		return c;
 	}
-
 }
