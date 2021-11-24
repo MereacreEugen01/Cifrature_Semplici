@@ -30,6 +30,7 @@ public class Inbox extends JFrame implements ActionListener{
 	private int altezza= 330, larghezza= 850;//dimensioni della finestra
 	private Dimension dim = Toolkit.getDefaultToolkit().getScreenSize(); //variabile di supporto per posizionare la finestra al centro dello schermo
 	private int x =  (dim.width-larghezza)/2, y = (dim.height-altezza)/2;//coordinate x e y per posizionare la finestra in maniera dinamica
+	private byte[] messaggioDecifrato = new byte[512];
 
 	private JTextPane casellaCesare = new JTextPane(
 			//La chiave di cesare non deve contenere nessun carattere quindi non appena viene inserita una lettere verrà subito eliminata
@@ -100,7 +101,7 @@ public class Inbox extends JFrame implements ActionListener{
 	JLabel etichetta5 = new JLabel("Porta: "+MainWindow.getNumeroPorta());
 
 	JLabel etichetta6 = new JLabel("IP di arrivo: ");
-	
+
 	JComboBox<String> tendina = new JComboBox<String>();
 
 	private DatagramSocket socket;
@@ -124,7 +125,7 @@ public class Inbox extends JFrame implements ActionListener{
 		nord.add(etichetta1);
 
 		nord.add(sottotitolo);
-		
+
 		//pannello delle impostazioni per la decifrazione, utilizzo tutti valori assoluti per semplicità
 		center.setLayout(null);
 		//Etichetta per scegliere i messaggi
@@ -148,7 +149,7 @@ public class Inbox extends JFrame implements ActionListener{
 
 		//tasco per il brute force 
 		scelta3.setBounds(175, 100, 150, 20);
-		//center.add(scelta3);
+		center.add(scelta3);
 		//Campo per mettere la chiave di cesare
 		casellaCesare.setBounds(290, 40, 100, 20);
 		center.add(casellaCesare);
@@ -158,7 +159,7 @@ public class Inbox extends JFrame implements ActionListener{
 		//Etichetta per sapere la porta aperta
 		etichetta5.setBounds(10, 100, 100, 20);
 		center.add(etichetta5);	
-		
+
 		//Etichetta per sapere da dove arriva il messaggio da decifrare
 		etichetta6.setBounds(10, 130, 300, 20);
 		//center.add(etichetta6);	
@@ -300,6 +301,24 @@ public class Inbox extends JFrame implements ActionListener{
 			JOptionPane.showMessageDialog(null, "Non è stato possibile aprire la socket", "Attenzione", JOptionPane.WARNING_MESSAGE);
 		}
 	}
+
+	//brute force Cesare 
+	public void bruteForceCesare(byte[] messaggino)
+	{
+		int i = 0;
+		byte [] messagginoByte = new byte[messaggino.length];
+		while(i<255) 
+		{
+			messagginoByte[0] = (byte)messaggino[4];
+			if(new String(decifraCesare(messagginoByte, i)).substring(0,1).equals(":")) 
+			{
+				areaMessaggioDecifrato.setText(new String(decifraCesare(messaggino, i)));
+				i = 256;
+			}
+			i ++;
+		}
+	}
+
 	// implementazione action listener 
 	public void actionPerformed(ActionEvent listener) {	
 		int chiave;
@@ -325,7 +344,7 @@ public class Inbox extends JFrame implements ActionListener{
 			if(scelta1.isSelected()) 
 			{
 				chiave = Integer.parseInt(casellaCesare.getText());
-				byte[] messaggioDecifrato = new byte[512];
+
 				messaggioDecifrato = decifraCesare(messaggiRicevuti.get(tendina.getSelectedIndex()), chiave);
 				areaMessaggioCifrato.setText(new String(messaggiRicevuti.get(tendina.getSelectedIndex())));
 				areaMessaggioDecifrato.setText(new String(messaggioDecifrato));
@@ -342,13 +361,17 @@ public class Inbox extends JFrame implements ActionListener{
 						key[i] = (byte)chiaveV[i];
 					byte[] messaggioDecifrato = new byte[512];
 					areaMessaggioDecifrato.setText(new String(messaggioDecifrato));
-					areaMessaggioCifrato.setText(new String(messaggiRicevuti.get(tendina.getSelectedIndex())));
+					byte[] cifrato = (messaggiRicevuti.get(tendina.getSelectedIndex()));
+					messaggioDecifrato = decifraVigenere(cifrato, key);
+					areaMessaggioCifrato.setText(new String(cifrato));
 					areaMessaggioDecifrato.setText(new String(messaggioDecifrato));
 				}
 			}//metodo con il brute force da implementare
 			else if(scelta3.isSelected())
 			{
-				JOptionPane.showMessageDialog(null, "Coming soon..." , "messaggio" , JOptionPane.INFORMATION_MESSAGE);
+				//brute force Cesare 
+				areaMessaggioCifrato.setText(new String(messaggiRicevuti.get(tendina.getSelectedIndex())));
+				bruteForceCesare(messaggiRicevuti.get(tendina.getSelectedIndex()));
 			}
 		}
 		else if(bottone2==listener.getSource())
